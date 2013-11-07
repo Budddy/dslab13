@@ -8,15 +8,20 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.nio.CharBuffer;
+import java.util.HashSet;
+import java.util.Set;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 import message.Response;
 import message.request.DownloadFileRequest;
 import message.request.InfoRequest;
+import message.response.InfoResponse;
 import message.request.UploadRequest;
 import message.request.VersionRequest;
 import message.response.DownloadFileResponse;
 import message.response.MessageResponse;
+import message.response.ListResponse;
+import message.response.VersionResponse;
 
 public class FileServer implements IFileServer {
 
@@ -42,13 +47,19 @@ public class FileServer implements IFileServer {
 	@Override
 	public Response info(InfoRequest request) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		File f = new File(this.data.getFdir()+"/"+request.getFilename());
+		return new InfoResponse(request.getFilename(),f.length());
 	}
 
 	@Override
 	public Response list() throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		File f = new File(this.data.getFdir());
+		Set<String> names=new HashSet<String>();
+		for(String name:f.list()){
+			names.add(name);
+		}
+		return new ListResponse(names);
 	}
 
 	@Override
@@ -64,7 +75,7 @@ public class FileServer implements IFileServer {
 	@Override
 	public Response version(VersionRequest request) throws IOException {
 		// TODO Auto-generated method stub
-		return null;
+		return new VersionResponse(request.getFilename(),1);
 	}
 
 }
