@@ -3,11 +3,12 @@ package proxy;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.Timer;
+import java.util.concurrent.ExecutorService;
 import cli.Shell;
 
 public class ProxyData {
@@ -16,7 +17,7 @@ public class ProxyData {
 	private int udpp;
 	private int fstimeout;
 	private int fscheckperiod;
-	private Map<String,UserSave> users;
+	private Map<String, UserSave> users;
 	private SortedMap<FileServerSave, FileServerSave> fservers;
 	private List<Socket> slist;
 	private ServerSocket ssock;
@@ -25,29 +26,11 @@ public class ProxyData {
 	private ClientListenerProxy listen;
 	private ProxyCli proxy;
 	private Shell shell;
-	private List<Thread> threads = new ArrayList<Thread>();
+	private ExecutorService threads;
 	private Set<String> filenames;
-
-	
-	public Set<String> getFilenames() {
-		return filenames;
-	}
-
-	
-	public void setFilenames(Set<String> filenames) {
-		this.filenames = filenames;
-	}
-
-	
-	public void setThreads(List<Thread> threads) {
-		this.threads = threads;
-	}
+	private Timer time;
 
 	public ProxyData() {
-	}
-
-	public void addTread(Thread t) {
-		this.threads.add(t);
 	}
 
 	public IsAliveListener getAlive() {
@@ -56,6 +39,10 @@ public class ProxyData {
 
 	public DatagramSocket getDsock() {
 		return this.dsock;
+	}
+
+	public Set<String> getFilenames() {
+		return this.filenames;
 	}
 
 	public int getFscheckperiod() {
@@ -107,15 +94,19 @@ public class ProxyData {
 		return this.tcpp;
 	}
 
-	public List<Thread> getThreads() {
+	public ExecutorService getThreads() {
 		return this.threads;
+	}
+
+	public Timer getTime() {
+		return this.time;
 	}
 
 	public int getUdpp() {
 		return this.udpp;
 	}
 
-	public Map<String,UserSave> getUsers() {
+	public Map<String, UserSave> getUsers() {
 		return this.users;
 	}
 
@@ -125,6 +116,10 @@ public class ProxyData {
 
 	public synchronized void setDsock(DatagramSocket dsock) {
 		this.dsock = dsock;
+	}
+
+	public void setFilenames(Set<String> filenames) {
+		this.filenames = filenames;
 	}
 
 	public synchronized void setFscheckperiod(int fscheckperiod) {
@@ -163,11 +158,19 @@ public class ProxyData {
 		this.tcpp = tcpp;
 	}
 
+	public void setThreads(ExecutorService threads) {
+		this.threads = threads;
+	}
+
+	public void setTime(Timer time) {
+		this.time = time;
+	}
+
 	public synchronized void setUdpp(int udpp) {
 		this.udpp = udpp;
 	}
 
-	public synchronized void setUsers(Map<String,UserSave> users) {
+	public synchronized void setUsers(Map<String, UserSave> users) {
 		this.users = users;
 	}
 }

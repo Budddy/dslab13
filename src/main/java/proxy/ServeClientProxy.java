@@ -8,14 +8,11 @@ import java.util.Map;
 import message.Response;
 import message.request.BuyRequest;
 import message.request.CreditsRequest;
-import message.request.DownloadFileRequest;
 import message.request.DownloadTicketRequest;
-import message.request.InfoRequest;
 import message.request.ListRequest;
 import message.request.LoginRequest;
 import message.request.LogoutRequest;
 import message.request.UploadRequest;
-import message.request.VersionRequest;
 import message.response.LoginResponse;
 import message.response.MessageResponse;
 
@@ -45,7 +42,7 @@ public class ServeClientProxy implements Runnable {
 			e.printStackTrace();
 		}
 		// System.out.println("client active2");
-		p = new Proxy(data, user);
+		this.p = new Proxy(data, this.user);
 		// System.out.println("client active3");
 	}
 
@@ -57,33 +54,45 @@ public class ServeClientProxy implements Runnable {
 	public void run() {
 		// System.out.println("client run");
 		try {
-			while (s.isConnected()) {
+			while (this.s.isConnected()) {
 				// System.out.println("client loop");
 
-				Object request = input.readObject();
+				Object request = this.input.readObject();
 				Response response;
-				//System.out.println(request);
+				// System.out.println(request);
 				if (request instanceof BuyRequest) {
-					if (user != null) response = this.p.buy((BuyRequest) request);
-					else response = new MessageResponse("Unknown command!");
+					if (this.user != null) {
+						response = this.p.buy((BuyRequest) request);
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 
 				} else if (request instanceof CreditsRequest) {
-					if (user != null) response = this.p.credits();
-					else response = new MessageResponse("Unknown command!");
+					if (this.user != null) {
+						response = this.p.credits();
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 
 				} else if (request instanceof DownloadTicketRequest) {
-					if (user != null) response = this.p.download((DownloadTicketRequest) request);
-					else response = new MessageResponse("Unknown command!");
+					if (this.user != null) {
+						response = this.p.download((DownloadTicketRequest) request);
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 
 				} else if (request instanceof ListRequest) {
-					if (user != null) response = this.p.list();
-					else response = new MessageResponse("Unknown command!");
+					if (this.user != null) {
+						response = this.p.list();
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 
 				} else if (request instanceof LoginRequest) {
 					LoginResponse l;
 					l = this.p.login((LoginRequest) request);
 					if (l.getType() == LoginResponse.Type.SUCCESS) {
-						Map<String, UserSave> users = data.getUsers();
+						Map<String, UserSave> users = this.data.getUsers();
 						UserSave u = users.get( ((LoginRequest) request).getUsername());
 						this.p.setUs(u);
 						this.user = u;
@@ -91,19 +100,24 @@ public class ServeClientProxy implements Runnable {
 					response = l;
 
 				} else if (request instanceof LogoutRequest) {
-					if (user != null) {
+					if (this.user != null) {
 						response = this.p.logout();
-						user.setOnline(false);
+						this.user.setOnline(false);
 						this.s.close();
-					} else response = new MessageResponse("Unknown command!");
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 
 				} else if (request instanceof UploadRequest) {
-					if (user != null) response = this.p.upload((UploadRequest) request);
-					else response = new MessageResponse("Unknown command!");
+					if (this.user != null) {
+						response = this.p.upload((UploadRequest) request);
+					} else {
+						response = new MessageResponse("Unknown command!");
+					}
 				} else {
 					response = new MessageResponse("Unknown command!");
 				}
-				output.writeObject(response);
+				this.output.writeObject(response);
 
 			}
 		} catch (IOException e) {

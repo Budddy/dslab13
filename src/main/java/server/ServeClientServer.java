@@ -5,14 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import message.Response;
-import message.request.BuyRequest;
-import message.request.CreditsRequest;
 import message.request.DownloadFileRequest;
-import message.request.DownloadTicketRequest;
 import message.request.InfoRequest;
 import message.request.ListRequest;
-import message.request.LoginRequest;
-import message.request.LogoutRequest;
 import message.request.UploadRequest;
 import message.request.VersionRequest;
 import message.response.MessageResponse;
@@ -32,11 +27,11 @@ public class ServeClientServer implements Runnable {
 		try {
 			this.input = new ObjectInputStream(s.getInputStream());
 			this.output = new ObjectOutputStream(s.getOutputStream());
+			this.fs = new FileServer(this.data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		fs = new FileServer(this.data, this.s);
 	}
 
 	public Socket getS() {
@@ -45,28 +40,28 @@ public class ServeClientServer implements Runnable {
 
 	@Override
 	public void run() {
-		while (s.isConnected()) {
+		while (this.s.isConnected()) {
 			try {
-				Object request = input.readObject();
+				Object request = this.input.readObject();
 				Response response;
 				if (request instanceof DownloadFileRequest) {
-					response = fs.download((DownloadFileRequest) request);
+					response = this.fs.download((DownloadFileRequest) request);
 				} else if (request instanceof InfoRequest) {
-					response = fs.info((InfoRequest) request);
+					response = this.fs.info((InfoRequest) request);
 
 				} else if (request instanceof ListRequest) {
-					response = fs.list();
+					response = this.fs.list();
 
 				} else if (request instanceof UploadRequest) {
-					response = fs.upload((UploadRequest) request);
+					response = this.fs.upload((UploadRequest) request);
 
 				} else if (request instanceof VersionRequest) {
-					response = fs.version((VersionRequest) request);
+					response = this.fs.version((VersionRequest) request);
 
-				}else{
+				} else {
 					response = new MessageResponse("Unknown command!");
 				}
-				output.writeObject(response);
+				this.output.writeObject(response);
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

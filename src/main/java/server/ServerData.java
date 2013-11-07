@@ -4,7 +4,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import cli.Shell;
 
 public class ServerData {
@@ -13,11 +13,15 @@ public class ServerData {
 	private String fdir;
 	private int tcpp;
 	private InetAddress phost;
+
 	private int pudpp;
+
 	private Shell sh;
+
 	private FileServerCli fServer;
-	private Map<String,File> files;
+	private Map<String, File> files;
 	private ServerSocket ssock;
+	private ExecutorService threads;
 
 	public ServerData() {
 	}
@@ -30,7 +34,7 @@ public class ServerData {
 		return this.fdir;
 	}
 
-	public Map<String,File> getFiles() {
+	public Map<String, File> getFiles() {
 		return this.files;
 	}
 
@@ -63,6 +67,10 @@ public class ServerData {
 		return this.tcpp;
 	}
 
+	public ExecutorService getThreads() {
+		return this.threads;
+	}
+
 	public void setFalive(int falive) {
 		this.falive = falive;
 	}
@@ -71,7 +79,7 @@ public class ServerData {
 		this.fdir = fdir;
 	}
 
-	public void setFiles(Map<String,File> files) {
+	public void setFiles(Map<String, File> files) {
 		this.files = files;
 	}
 
@@ -102,5 +110,9 @@ public class ServerData {
 
 	public void setTcpp(int tcpp) {
 		this.tcpp = tcpp;
+	}
+
+	public void setThreads(ExecutorService threads) {
+		this.threads = threads;
 	}
 }

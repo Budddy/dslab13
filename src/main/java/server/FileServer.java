@@ -4,7 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.CharBuffer;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 import message.Response;
 import message.request.DownloadFileRequest;
 import message.request.InfoRequest;
@@ -14,26 +19,22 @@ import message.response.DownloadFileResponse;
 import message.response.MessageResponse;
 
 public class FileServer implements IFileServer {
-	
+
 	private ServerData data;
-	private Socket s;
-	
-	public FileServer(ServerData data,Socket s){
-		this.data=data;
-		this.s=s;
+
+	public FileServer(ServerData data) {
+		this.data = data;
 	}
+
 	@Override
 	public Response download(DownloadFileRequest request) throws IOException {
 		// TODO Auto-generated method stub
-		File f = data.getFiles().get(request.getTicket().getFilename());
+		File f = this.data.getFiles().get(request.getTicket().getFilename());
 		FileReader r = new FileReader(f);
-		StringBuilder sb= new StringBuilder();
-		char[] c = new char[10];
-		while(r.read(c)!=-1){
-			sb.append(c);
-		}
-		byte[] content = sb.toString().getBytes();
-		Response resp = new DownloadFileResponse(request.getTicket(),content);
+		CharBuffer cb = CharBuffer.allocate((int) f.length());
+		r.read(cb);
+		String content = new BASE64Encoder().encode(cb.toString().getBytes());
+		Response resp = new DownloadFileResponse(request.getTicket(), content.getBytes());
 		r.close();
 		return resp;
 	}
@@ -53,9 +54,10 @@ public class FileServer implements IFileServer {
 	@Override
 	public MessageResponse upload(UploadRequest request) throws IOException {
 		// TODO Auto-generated method stub
-		FileWriter fw = new FileWriter(this.data.getFdir());
-		fw.write(String.valueOf(request.getContent()));
-		
+		FileWriter fw = new FileWriter(this.data.getFdir()+"/"+request.getFilename());
+		byte[] data = new BASE64Decoder().decodeBuffer(String.valueOf(request.getContent()));
+		fw.write(String.valueOf(data));
+		fw.close();
 		return null;
 	}
 

@@ -3,7 +3,6 @@ package server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 
 public class IsAliveSender implements Runnable {
@@ -20,7 +19,7 @@ public class IsAliveSender implements Runnable {
 		try {
 			while (!Thread.interrupted()) {
 				Thread.sleep(this.data.getFalive());
-				String message = "!alive " + data.getTcpp();
+				String message = "!alive " + this.data.getTcpp();
 				try {
 					DatagramSocket socket = new DatagramSocket();
 					byte[] buf = message.getBytes();
@@ -35,7 +34,7 @@ public class IsAliveSender implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//System.out.println(message);
+				// System.out.println(message);
 			}
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block

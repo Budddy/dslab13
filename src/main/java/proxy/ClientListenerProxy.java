@@ -31,7 +31,7 @@ public class ClientListenerProxy implements Runnable {
 			while (!Thread.interrupted()) {
 				s = this.data.getSsock().accept();
 				this.slist.add(s);
-				(new Thread(new ServeClientProxy(s, this.data))).start();
+				this.data.getThreads().execute(new ServeClientProxy(s, this.data));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

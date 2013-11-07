@@ -3,8 +3,9 @@ package proxy;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.Date;
+import java.util.TimerTask;
 
-public class IsAliveListener implements Runnable {
+public class IsAliveListener extends TimerTask {
 
 	private ProxyData data;
 
@@ -24,9 +25,9 @@ public class IsAliveListener implements Runnable {
 		// TODO Auto-generated method stub
 		try {
 			while (!Thread.interrupted()) {
-				//System.out.println("test");
+				// System.out.println("test");
 				this.data.getDsock().receive(pack);
-				//System.out.println(pack);
+				// System.out.println(pack);
 				fss = new FileServerSave(pack.getAddress(), pack.getPort(), 0, true);
 				fss.setLast(new Date());
 				temp = this.data.getFservers().get(fss);

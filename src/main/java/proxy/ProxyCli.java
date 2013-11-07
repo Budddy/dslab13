@@ -9,9 +9,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Timer;
 import java.util.TreeMap;
+import java.util.concurrent.Executors;
 import message.Response;
 import message.response.FileServerInfoResponse;
 import message.response.MessageResponse;
@@ -21,7 +22,6 @@ import model.UserInfo;
 import util.Config;
 import cli.Command;
 import cli.Shell;
-import cli.TestInputStream;
 import cli.TestOutputStream;
 
 public class ProxyCli implements IProxyCli {
@@ -34,22 +34,22 @@ public class ProxyCli implements IProxyCli {
 	private ProxyData data = new ProxyData();
 
 	public ProxyCli(Config conf, Shell sh) throws IOException {
-		this.data.setUsers(new HashMap<String,UserSave>());
+		this.data.setUsers(new HashMap<String, UserSave>());
 		this.data.setFservers(new TreeMap<FileServerSave, FileServerSave>());
 		getUsers();
 
 		this.data.setTcpp(conf.getInt("tcp.port"));
 
-		//System.out.println(this.data.getTcpp());
+		// System.out.println(this.data.getTcpp());
 
 		this.data.setUdpp(conf.getInt("udp.port"));
-		//System.out.println(this.data.getUdpp());
+		// System.out.println(this.data.getUdpp());
 
 		this.data.setFstimeout(conf.getInt("fileserver.timeout"));
-		//System.out.println(this.data.getFstimeout());
+		// System.out.println(this.data.getFstimeout());
 
 		this.data.setFscheckperiod(conf.getInt("fileserver.checkPeriod"));
-		//System.out.println(this.data.getFscheckperiod());
+		// System.out.println(this.data.getFscheckperiod());
 
 		this.data.setSsock(new ServerSocket(this.data.getTcpp()));
 		this.data.setDsock(new DatagramSocket(this.data.getUdpp()));
@@ -57,14 +57,13 @@ public class ProxyCli implements IProxyCli {
 		this.data.setAlive(new IsAliveListener(this.data));
 		this.data.setListen(new ClientListenerProxy(this.data));
 
-		Thread t;
-		t = new Thread(this.data.getAlive());
-		t.start();
-		this.data.addTread(t);
+		this.data.setThreads(Executors.newCachedThreadPool());
+		this.data.getThreads().execute(this.data.getListen());
+		Timer tim = new Timer();
+		this.data.setTime(tim);
+		this.data.getTime().scheduleAtFixedRate(this.data.getAlive(), 0, this.data.getFscheckperiod());
 
-		t = new Thread(this.data.getListen());
-		t.start();
-		this.data.addTread(t);
+		this.data.getThreads().execute(new Thread(this.data.getListen()));
 
 		this.data.setShell(sh);
 		this.data.setProxy(this);
@@ -76,9 +75,8 @@ public class ProxyCli implements IProxyCli {
 	@Command
 	public MessageResponse exit() throws IOException {
 		// TODO Auto-generated method stub
-		for (Thread t : this.data.getThreads()) {
-			t.interrupt();
-		}
+		this.data.getThreads().shutdownNow();
+		this.data.getTime().cancel();
 		this.data.getDsock().close();
 		this.data.getSsock().close();
 		this.data.getShell().close();
@@ -114,15 +112,15 @@ public class ProxyCli implements IProxyCli {
 		List<String> lines = readLines(url.openStream(), Charset.defaultCharset());
 		for (String line : lines) {
 			if (line.contains("credits")) {
-				//System.out.println(line.split("\\p{Punct}")[0]);
+				// System.out.println(line.split("\\p{Punct}")[0]);
 				names.add(line.split("\\p{Punct}")[0]);
 			}
 		}
 		for (String name : names) {
 			UserSave u = new UserSave(name, userconf.getInt(name + ".credits"), false,
 					userconf.getString(name + ".password"));
-			//System.out.println(u);
-			this.data.getUsers().put(u.getName(),u);
+			// System.out.println(u);
+			this.data.getUsers().put(u.getName(), u);
 		}
 
 		/***************************************************************/
@@ -136,7 +134,7 @@ public class ProxyCli implements IProxyCli {
 
 		for (UserSave u : this.data.getUsers().values()) {
 			lui.add(u.getInfo());
-			//System.out.println("test");
+			// System.out.println("test");
 		}
 		return new UserInfoResponse(lui);
 	}

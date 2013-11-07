@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import server.FileServer;
 import message.Response;
 import message.request.BuyRequest;
 import message.request.DownloadTicketRequest;
@@ -22,26 +21,6 @@ public class Proxy implements IProxy {
 
 	UserSave us;
 	ProxyData data;
-
-	
-	public UserSave getUs() {
-		return us;
-	}
-
-	
-	public void setUs(UserSave us) {
-		this.us = us;
-	}
-
-	
-	public ProxyData getData() {
-		return data;
-	}
-
-	
-	public void setData(ProxyData data) {
-		this.data = data;
-	}
 
 	public Proxy(ProxyData data, UserSave us) {
 		this.us = us;
@@ -73,6 +52,14 @@ public class Proxy implements IProxy {
 		return null;
 	}
 
+	public ProxyData getData() {
+		return this.data;
+	}
+
+	public UserSave getUs() {
+		return this.us;
+	}
+
 	@Override
 	public Response list() throws IOException {
 		return new ListResponse(this.data.getFilenames());
@@ -80,7 +67,7 @@ public class Proxy implements IProxy {
 
 	@Override
 	public LoginResponse login(LoginRequest request) throws IOException {
-		UserSave user = data.getUsers().get(request.getUsername());
+		UserSave user = this.data.getUsers().get(request.getUsername());
 		LoginResponse r;
 		if (user != null) {
 			if (user.getPassword().equals(request.getPassword())) {
@@ -102,6 +89,14 @@ public class Proxy implements IProxy {
 		// TODO Auto-generated method stub
 		this.us.setOnline(false);
 		return new MessageResponse("logout successfull");
+	}
+
+	public void setData(ProxyData data) {
+		this.data = data;
+	}
+
+	public void setUs(UserSave us) {
+		this.us = us;
 	}
 
 	@Override
