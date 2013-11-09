@@ -3,6 +3,7 @@ package client;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import cli.Shell;
 import model.UserInfo;
 
 public class ClientData {
@@ -13,29 +14,18 @@ public class ClientData {
 	private ObjectInputStream ois;
 	private Socket s;
 	private ClientCli client;
-	private boolean log=false;
+	private boolean log = false;
 	private UserInfo user;
+	private Shell sh;
 
 	
-	
-	public UserInfo getUser() {
-		return user;
-	}
-
-
-	
-	public void setUser(UserInfo user) {
-		this.user = user;
-	}
-
-
-	public boolean isLog() {
-		return log;
+	public Shell getSh() {
+		return sh;
 	}
 
 	
-	public void setLog(boolean log) {
-		this.log = log;
+	public void setSh(Shell sh) {
+		this.sh = sh;
 	}
 
 	private ObjectOutputStream oos;
@@ -68,12 +58,24 @@ public class ClientData {
 		return this.tcpp;
 	}
 
+	public UserInfo getUser() {
+		return this.user;
+	}
+
+	public boolean isLog() {
+		return this.log;
+	}
+
 	public void setClient(ClientCli client) {
 		this.client = client;
 	}
 
 	public void setDdir(String ddir) {
 		this.ddir = ddir;
+	}
+
+	public void setLog(boolean log) {
+		this.log = log;
 	}
 
 	public void setOis(ObjectInputStream ois) {
@@ -94,6 +96,10 @@ public class ClientData {
 
 	public void setTcpp(int tcpp) {
 		this.tcpp = tcpp;
+	}
+
+	public void setUser(UserInfo user) {
+		this.user = user;
 	}
 
 }

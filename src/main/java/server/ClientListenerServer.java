@@ -31,11 +31,12 @@ public class ClientListenerServer implements Runnable {
 			while (!Thread.interrupted()) {
 				s = this.data.getSsock().accept();
 				this.slist.add(s);
-				this.data.getThreads().execute(new ServeClientServer(s, this.data));
+				new Thread(new ServeClientServer(s, this.data)).start();
+				// this.data.getThreads().execute(new ServeClientServer(s, this.data));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 

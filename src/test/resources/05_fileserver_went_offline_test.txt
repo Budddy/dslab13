@@ -1,4 +1,3 @@
-%Fileservers goes offline after 1 download
 *	startProxy proxy
 *	startClient client
 *	startFileServer fs1

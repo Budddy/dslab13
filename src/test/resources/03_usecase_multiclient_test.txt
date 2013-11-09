@@ -1,4 +1,3 @@
-%2 Clients doing operations over the proxy
 *	startProxy proxy
 *	startClient client
 *	startClient client1

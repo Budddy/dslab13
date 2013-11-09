@@ -2,10 +2,14 @@ package client;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.CharBuffer;
 import message.Response;
 import message.request.BuyRequest;
 import message.request.CreditsRequest;
@@ -21,19 +25,17 @@ import message.response.LoginResponse;
 import message.response.LoginResponse.Type;
 import message.response.MessageResponse;
 import model.UserInfo;
-import util.ChecksumUtils;
 import util.Config;
 import cli.Command;
 import cli.Shell;
-import cli.TestInputStream;
 import cli.TestOutputStream;
 
 public class ClientCli implements IClientCli {
 
 	public static void main(String[] args) throws IOException {
-		Shell sh = new Shell("proxy", System.out, System.in);
-		new ClientCli(new Config("client"), sh);
-		sh.run();
+		Shell sh = new Shell("client", new TestOutputStream(System.out), System.in);
+		sh.register(new ClientCli(new Config("client"), sh));
+		new Thread(sh).start();
 	}
 
 	private ClientData data;
@@ -45,13 +47,14 @@ public class ClientCli implements IClientCli {
 		this.data.setPhost(conf.getString("proxy.host"));
 		this.data.setTcpp(conf.getInt("proxy.tcp.port"));
 
-		Socket s = new Socket(this.data.getPhost(), this.data.getTcpp());
+		try {
+			Socket s = new Socket(this.data.getPhost(), this.data.getTcpp());
 		this.data.setOis(new ObjectInputStream(s.getInputStream()));
 		this.data.setOos(new ObjectOutputStream(s.getOutputStream()));
 		this.data.setS(s);
-
 		this.data.setClient(this);
-		shell.register(this.data.getClient());
+		} catch (IOException e) {
+		}
 
 	}
 
@@ -95,6 +98,13 @@ public class ClientCli implements IClientCli {
 			ObjectInputStream ois = new ObjectInputStream(down.getInputStream());
 			oos.writeObject(new DownloadFileRequest(dtr.getTicket()));
 			DownloadFileResponse dfr = (DownloadFileResponse) ois.readObject();
+
+			FileOutputStream fw = new FileOutputStream(this.data.getDdir() + "/"
+					+ dfr.getTicket().getFilename());
+			byte[] data = dfr.getContent();
+			fw.write(data);
+			fw.close();
+
 			ois.close();
 			oos.close();
 			down.close();
@@ -109,8 +119,14 @@ public class ClientCli implements IClientCli {
 	@Override
 	@Command
 	public MessageResponse exit() throws IOException {
-		if (this.data.isLog()) logout();
+		/*
+		 * if (this.data.isLog()) {
+		 * logout();
+		 * }
+		 */
 		this.data.getS().close();
+		// this.data.getSh().close();
+		// System.in.close();
 		return new MessageResponse("Exit");
 	}
 
@@ -136,7 +152,7 @@ public class ClientCli implements IClientCli {
 			this.data.getOos().writeObject(new LoginRequest(username, password));
 			LoginResponse lr = (LoginResponse) this.data.getOis().readObject();
 			this.data.setLog(lr.getType() == Type.SUCCESS);
-			this.data.setUser(new UserInfo(username,0,lr.getType() == Type.SUCCESS));
+			this.data.setUser(new UserInfo(username, 0, lr.getType() == Type.SUCCESS));
 			return lr;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -164,11 +180,13 @@ public class ClientCli implements IClientCli {
 	@Command
 	public MessageResponse upload(String filename) throws IOException {
 		File f = new File(this.data.getDdir() + "/" + filename);
-		FileInputStream fis = new FileInputStream(f);
-		byte[] b = new byte[fis.available()];
-		fis.read(b);
-		fis.close();
-		this.data.getOos().writeObject(new UploadRequest(filename, 1, b));
+		FileInputStream r = new FileInputStream(f);
+		byte[] cb = new byte[r.available()];
+		r.read(cb);
+		UploadRequest req = new UploadRequest(filename, 1, cb);
+		r.close();
+
+		this.data.getOos().writeObject(req);
 		try {
 			return (MessageResponse) this.data.getOis().readObject();
 		} catch (ClassNotFoundException e) {

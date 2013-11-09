@@ -1,4 +1,3 @@
-%Fileservers inconsistant test
 *	startProxy proxy
 *	startClient client
 *	startFileServer fs1

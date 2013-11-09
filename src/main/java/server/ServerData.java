@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import cli.Shell;
 
@@ -13,15 +14,13 @@ public class ServerData {
 	private String fdir;
 	private int tcpp;
 	private InetAddress phost;
-
 	private int pudpp;
-
 	private Shell sh;
-
 	private FileServerCli fServer;
 	private Map<String, File> files;
 	private ServerSocket ssock;
 	private ExecutorService threads;
+	private Timer time;
 
 	public ServerData() {
 	}
@@ -71,6 +70,10 @@ public class ServerData {
 		return this.threads;
 	}
 
+	public Timer getTime() {
+		return this.time;
+	}
+
 	public void setFalive(int falive) {
 		this.falive = falive;
 	}
@@ -114,5 +117,9 @@ public class ServerData {
 
 	public void setThreads(ExecutorService threads) {
 		this.threads = threads;
+	}
+
+	public void setTime(Timer time) {
+		this.time = time;
 	}
 }

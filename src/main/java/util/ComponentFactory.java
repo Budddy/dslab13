@@ -22,7 +22,8 @@ public class ComponentFactory {
 	 */
 	public IClientCli startClient(Config config, Shell shell) throws Exception {
 		// TODO: create a new client instance (including a Shell) and start it
-		ClientCli client = new ClientCli(config,shell);
+		IClientCli client = new ClientCli(config,shell);
+		shell.register(client);
 		new Thread(shell).start();
 		return client;
 	}
@@ -37,7 +38,8 @@ public class ComponentFactory {
 	 */
 	public IProxyCli startProxy(Config config, Shell shell) throws Exception {
 		// TODO: create a new proxy instance (including a Shell) and start it
-		ProxyCli proxy = new ProxyCli(config,shell);
+		IProxyCli proxy = new ProxyCli(config,shell);
+		shell.register(proxy);
 		new Thread(shell).start();
 		return proxy;
 	}
@@ -52,7 +54,8 @@ public class ComponentFactory {
 	 */
 	public IFileServerCli startFileServer(Config config, Shell shell) throws Exception {
 		// TODO: create a new file server instance (including a Shell) and start it
-		FileServerCli server = new FileServerCli(config,shell);
+		IFileServerCli server = new FileServerCli(config,shell);
+		shell.register(server);
 		new Thread(shell).start();
 		return server;
 	}

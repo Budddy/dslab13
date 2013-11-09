@@ -3,10 +3,11 @@ package proxy;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import cli.Shell;
@@ -18,8 +19,8 @@ public class ProxyData {
 	private int fstimeout;
 	private int fscheckperiod;
 	private Map<String, UserSave> users;
-	private SortedMap<FileServerSave, FileServerSave> fservers;
-	private List<Socket> slist;
+	private Set<FileServerSave> fservers =new HashSet<FileServerSave>();
+	private List<Socket> slist = new ArrayList<Socket>();
 	private ServerSocket ssock;
 	private DatagramSocket dsock;
 	private IsAliveListener alive;
@@ -27,7 +28,7 @@ public class ProxyData {
 	private ProxyCli proxy;
 	private Shell shell;
 	private ExecutorService threads;
-	private Set<String> filenames;
+	private Set<String> filenames=new HashSet<String>();
 	private Timer time;
 
 	public ProxyData() {
@@ -49,7 +50,7 @@ public class ProxyData {
 		return this.fscheckperiod;
 	}
 
-	public SortedMap<FileServerSave, FileServerSave> getFservers() {
+	public Set<FileServerSave> getFservers() {
 		return this.fservers;
 	}
 
@@ -63,7 +64,7 @@ public class ProxyData {
 
 	public FileServerSave getMinFileServer() {
 		FileServerSave min = null;
-		for (FileServerSave fs : this.fservers.keySet()) {
+		for (FileServerSave fs : this.fservers) {
 			if ( (min == null) && fs.isOnline()) {
 				min = fs;
 			} else if ( (min.getUsage() > fs.getUsage()) && fs.isOnline()) {
@@ -126,7 +127,7 @@ public class ProxyData {
 		this.fscheckperiod = fscheckperiod;
 	}
 
-	public synchronized void setFservers(SortedMap<FileServerSave, FileServerSave> fservers) {
+	public synchronized void setFservers(Set<FileServerSave> fservers) {
 		this.fservers = fservers;
 	}
 

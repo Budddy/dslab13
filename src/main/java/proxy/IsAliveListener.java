@@ -5,12 +5,11 @@ import java.net.DatagramPacket;
 import java.util.Date;
 import java.util.TimerTask;
 
-public class IsAliveListener extends TimerTask {
+public class IsAliveListener implements Runnable {
 
 	private ProxyData data;
 
 	public IsAliveListener(ProxyData data) {
-		super();
 		this.data = data;
 	}
 
@@ -20,23 +19,28 @@ public class IsAliveListener extends TimerTask {
 
 	@Override
 	public void run() {
-		DatagramPacket pack = new DatagramPacket(new byte[10], 10);
-		FileServerSave fss, temp;
+		FileServerSave fss, temp = null;
 		// TODO Auto-generated method stub
 		try {
 			while (!Thread.interrupted()) {
-				// System.out.println("test");
+				DatagramPacket pack = new DatagramPacket(new byte[256], 256);
 				this.data.getDsock().receive(pack);
-				// System.out.println(pack);
-				fss = new FileServerSave(pack.getAddress(), pack.getPort(), 0, true);
+				byte[] data = pack.getData();
+				String a = new String(data, 0, pack.getLength());
+				String port = a.trim().split("\\s+")[1];
+				fss = new FileServerSave(pack.getAddress(), Integer.valueOf(port), 0, true);
 				fss.setLast(new Date());
-				temp = this.data.getFservers().get(fss);
+				for (FileServerSave f : this.data.getFservers()) {
+					if (fss.equals(f)) {
+						temp = f;
+					}
+				}
 				if (temp != null) {
 					temp.setLast(new Date());
 					temp.setOnline(true);
 				} else {
 					fss.setLast(new Date());
-					this.data.getFservers().put(fss, fss);
+					this.data.getFservers().add(fss);
 				}
 
 			}

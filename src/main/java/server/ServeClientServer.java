@@ -25,8 +25,8 @@ public class ServeClientServer implements Runnable {
 		this.s = s;
 		this.data = data;
 		try {
-			this.input = new ObjectInputStream(s.getInputStream());
 			this.output = new ObjectOutputStream(s.getOutputStream());
+			this.input = new ObjectInputStream(s.getInputStream());
 			this.fs = new FileServer(this.data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -40,8 +40,8 @@ public class ServeClientServer implements Runnable {
 
 	@Override
 	public void run() {
-		while (this.s.isConnected()) {
-			try {
+		try {
+			while (this.s.isConnected()) {
 				Object request = this.input.readObject();
 				Response response;
 				if (request instanceof DownloadFileRequest) {
@@ -62,13 +62,13 @@ public class ServeClientServer implements Runnable {
 					response = new MessageResponse("Unknown command!");
 				}
 				this.output.writeObject(response);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
 		}
 	}
 

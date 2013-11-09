@@ -88,6 +88,7 @@ public class TestInputStream extends InputStream {
 
 	@Override
 	public void close() throws IOException {
+
 		lines = null;
 		Thread.currentThread().interrupt();
 	}

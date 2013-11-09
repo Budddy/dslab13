@@ -29,21 +29,14 @@ public class ServeClientProxy implements Runnable {
 		super();
 		this.s = s;
 		this.data = data;
-		// System.out.println("client active1");
 		try {
-			// System.out.println("client 0");
 			this.output = new ObjectOutputStream(s.getOutputStream());
-			// System.out.println("client 1");
 			this.input = new ObjectInputStream(s.getInputStream());
-			// System.out.println("client 2");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			// System.out.println("error");
 			e.printStackTrace();
 		}
-		// System.out.println("client active2");
 		this.p = new Proxy(data, this.user);
-		// System.out.println("client active3");
 	}
 
 	public Socket getS() {
@@ -52,14 +45,11 @@ public class ServeClientProxy implements Runnable {
 
 	@Override
 	public void run() {
-		// System.out.println("client run");
 		try {
 			while (this.s.isConnected()) {
-				// System.out.println("client loop");
 
 				Object request = this.input.readObject();
 				Response response;
-				// System.out.println(request);
 				if (request instanceof BuyRequest) {
 					if (this.user != null) {
 						response = this.p.buy((BuyRequest) request);
@@ -103,7 +93,6 @@ public class ServeClientProxy implements Runnable {
 					if (this.user != null) {
 						response = this.p.logout();
 						this.user.setOnline(false);
-						this.s.close();
 					} else {
 						response = new MessageResponse("Unknown command!");
 					}
@@ -122,7 +111,7 @@ public class ServeClientProxy implements Runnable {
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

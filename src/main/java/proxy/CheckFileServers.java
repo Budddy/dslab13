@@ -1,8 +1,9 @@
 package proxy;
 
 import java.util.Date;
+import java.util.TimerTask;
 
-public class CheckFileServers implements Runnable {
+public class CheckFileServers extends TimerTask {
 
 	private ProxyData data;
 
@@ -18,19 +19,11 @@ public class CheckFileServers implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		FileServerSave actual = new FileServerSave();
 		Date from;
-		try {
-			while (!Thread.interrupted()) {
-				Thread.sleep(this.data.getFscheckperiod());
-				from = new Date();
-				from = new Date(from.getTime() - this.data.getFstimeout());
-				actual.setLast(from);
-				this.data.setFservers(this.data.getFservers().headMap(actual));
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+		from = new Date();
+		from = new Date(from.getTime() - this.data.getFstimeout());
+		for (FileServerSave fss : this.data.getFservers()) {
+			fss.setOnline( (fss.getLast().getTime() - from.getTime()) > 0);
 		}
 
 	}

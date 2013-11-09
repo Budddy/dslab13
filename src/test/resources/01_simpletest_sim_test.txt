@@ -1,4 +1,3 @@
-%Simulation of SimpleTest.java with just the commands
 *	startProxy proxy
 *	startClient client
 *	startFileServer fs1
